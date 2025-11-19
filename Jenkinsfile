@@ -7,6 +7,7 @@ pipeline {
     DOCKER_IMAGE = "local/${env.APP_NAME}:${env.IMAGE_TAG}"
     HOST_PORT = "8081"                          // change if you want a different port
     CONTAINER_NAME = "${env.APP_NAME}"
+    HOST = "host.docker.internal"
   }
 
   options { timestamps() }
@@ -53,12 +54,12 @@ pipeline {
           def tries = 10
           def ok = false
           for (int i = 0; i < tries; i++) {
-            def code = sh(returnStatus: true, script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:${HOST_PORT}")
+            def code = sh(returnStatus: true, script: "curl -s -o /dev/null -w '%{http_code}' http://${HOST}:${HOST_PORT}")
             if (code == 200) { ok = true; break }
             sleep 2
           }
           if (!ok) {
-            error "Health check failed: site not responding on http://localhost:${HOST_PORT}"
+            error "Health check failed: site not responding on http://${HOST}:${HOST_PORT}"
           }
         }
       }
@@ -67,7 +68,7 @@ pipeline {
 
   post {
     success {
-      echo "Deployed: http://localhost:${HOST_PORT}"
+      echo "Deployed: http://${HOST}:${HOST_PORT}"
     }
     always {
       sh 'docker images | head -n 15 || true'
