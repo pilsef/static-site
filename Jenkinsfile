@@ -54,7 +54,7 @@ pipeline {
           def tries = 10
           def ok = false
           for (int i = 0; i < tries; i++) {
-            def code = sh(returnStatus: true, script: "curl -s -o /dev/null -w '%{http_code}' http://${HOST}:${HOST_PORT}")
+            def code = sh(returnStdout: true, script: "curl -s -o /dev/null -w '%{http_code}' http://${HOST}:${HOST_PORT}")
             if (code == 200) { ok = true; break }
             sleep 2
           }
